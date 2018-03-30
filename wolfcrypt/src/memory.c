@@ -25,7 +25,7 @@
 #endif
 
 #include <wolfssl/wolfcrypt/settings.h>
-
+#include <stddef.h>
 /* check old macros @wc_fips */
 #if defined(USE_CYASSL_MEMORY) && !defined(USE_WOLFSSL_MEMORY)
     #define USE_WOLFSSL_MEMORY
@@ -562,10 +562,23 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
         #endif /* WOLFSSL_HEAP_TEST */
     }
     else {
+        printf("wei offsets: WOLFSSL_HEAP to memory=%ld;\n",
+               (long) offsetof(struct WOLFSSL_HEAP_HINT, memory));
+
         WOLFSSL_HEAP_HINT* hint = (WOLFSSL_HEAP_HINT*)heap;
+
+        // below are to allocate at specific mem address
+        hint->memory = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
+        hint->memory->ava[0] = (wc_Memory*)malloc(sizeof(wc_Memory));
+        hint->memory->sizeList[0] = 2 * size;
+        hint->memory->ava[0]->buffer = (byte *)malloc(1024*sizeof(byte));
+        printf("wei, guess this is the allocation address: hint->memory->ava[0]->buffer = %p\n", hint->memory->ava[0]->buffer);
+        //hint->inBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
+        //hint->outBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
+
         WOLFSSL_HEAP*      mem  = (WOLFSSL_HEAP*)(hint->memory);
         printf("wei, hint = %p\n", hint);
-        //mem = hint; // to test
+        //mem = (WOLFSSL_HEAP*) hint; // to test
         printf("wei, hint->memory = %p\n", hint->memory);
         printf("wei, hint->outBuf = %p\n", hint->outBuf);
         if (wc_LockMutex(&(mem->memory_mutex)) != 0) {
@@ -580,6 +593,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
             if (type == DYNAMIC_TYPE_OUT_BUFFER) {
                 pt = hint->outBuf;
             }
+            printf("wei, we are inside mem->flag WOLFMEM_IO_POOL_FIXED\n");
             if (type == DYNAMIC_TYPE_IN_BUFFER) {
                 pt = hint->inBuf;
             }
@@ -594,9 +608,11 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
                     mem->io = pt->next;
                 }
             }
-
+            printf("wei, going to generate pt = %p\n", pt);
             /* general static memory */
             if (pt == NULL) {
+                printf("wei, inside generating pt\n");
+                printf("wei, mem->sizeList[0] = %u\n", mem->sizeList[0]);
                 for (i = 0; i < WOLFMEM_MAX_BUCKETS; i++) {
                     if ((word32)size < mem->sizeList[i]) {
                         if (mem->ava[i] != NULL) {
@@ -641,7 +657,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
             printf("Looking for %lu bytes at %s:%d\n", size, func, line);
             #endif
         }
-
+        printf("wei, about to wc_UnLockMutex\n");
         wc_UnLockMutex(&(mem->memory_mutex));
     }
 
@@ -656,7 +672,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
     (void)i;
     (void)pt;
     (void)type;
-
+    printf("wei, about to return res = %p\n", res);
     return res;
 }
 

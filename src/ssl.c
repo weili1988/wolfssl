@@ -25,7 +25,7 @@
 #endif
 
 #include <wolfssl/wolfcrypt/settings.h>
-
+#include <wolfssl/wolfcrypt/memory.h>
 #ifndef WOLFCRYPT_ONLY
 
 #ifdef HAVE_ERRNO_H
@@ -101,6 +101,7 @@
     #include <wolfssl/wolfcrypt/dh.h>
 #endif
 
+#include <stddef.h>
 
 #ifndef WOLFSSL_LEANPSK
 char* mystrnstr(const char* s1, const char* s2, unsigned int n)
@@ -311,6 +312,7 @@ WOLFSSL_CTX* wolfSSL_CTX_new_ex(WOLFSSL_METHOD* method, void* heap)
 
 
     WOLFSSL_LEAVE("WOLFSSL_CTX_new", 0);
+    //ctx->heap = (void *) (ctx + 0x70);
     return ctx;
 }
 
@@ -5135,8 +5137,13 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
     if (ctx == NULL && ssl == NULL)
         return BAD_FUNC_ARG;
     printf("wei, heap = %p\n", heap);
-    heap = (void *)malloc(sizeof(WOLFSSL_CTX));
-    heap = heap + sizeof(WOLFSSL_CTX);
+    printf("wei offsets: WOLFSSL_ctx to heap=%x;\n",
+           (long) offsetof(struct WOLFSSL_CTX, heap));
+    heap = (WOLFSSL_HEAP_HINT *)malloc(sizeof(WOLFSSL_HEAP_HINT));
+    //heap = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
+    //heap->memory = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
+    //heap->inBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
+    //heap->outBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
     printf("wei, after malloc, heap = %p\n", heap);
 #ifdef WOLFSSL_SMALL_STACK
     info = (EncryptedInfo*)XMALLOC(sizeof(EncryptedInfo), heap,
@@ -5166,6 +5173,7 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
         info->consumed = length;
         if (ret == 0) {
             ret = AllocDer(&der, (word32)length, type, heap);
+            printf("wei, der = %p\n", der);
             if (ret == 0) {
                 XMEMCPY(der->buffer, buff, length);
             }
