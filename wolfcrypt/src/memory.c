@@ -529,14 +529,16 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
         return malloc(size);
     }
 #endif
-
+    printf("wei, heap = %p\n", heap);
     /* if no heap hint then use dynamic memory*/
     if (heap == NULL) {
+            printf("wei, heap == Null, heap = %p\n", heap);
         #ifdef WOLFSSL_HEAP_TEST
             /* allow using malloc for creating ctx and method */
             if (type == DYNAMIC_TYPE_CTX || type == DYNAMIC_TYPE_METHOD ||
                                             type == DYNAMIC_TYPE_CERT_MANAGER) {
                 WOLFSSL_MSG("ERROR allowing null heap hint for ctx/method\n");
+                printf("wei, about to heap = malloc(size)\n", );
                 res = malloc(size);
             }
             else {
@@ -548,6 +550,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
             #ifdef FREERTOS
                 res = pvPortMalloc(size);
             #else
+                printf("wei, ifndef WOLFSSL_NO_MALLOC\n");
                 res = malloc(size);
             #endif
         #else
@@ -560,8 +563,11 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
     }
     else {
         WOLFSSL_HEAP_HINT* hint = (WOLFSSL_HEAP_HINT*)heap;
-        WOLFSSL_HEAP*      mem  = hint->memory;
-
+        WOLFSSL_HEAP*      mem  = (WOLFSSL_HEAP*)(hint->memory);
+        printf("wei, hint = %p\n", hint);
+        //mem = hint; // to test
+        printf("wei, hint->memory = %p\n", hint->memory);
+        printf("wei, hint->outBuf = %p\n", hint->outBuf);
         if (wc_LockMutex(&(mem->memory_mutex)) != 0) {
             WOLFSSL_MSG("Bad memory_mutex lock");
             return NULL;
@@ -602,8 +608,9 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
                 }
             }
         }
-
+        printf("wei, pt = %p\n", pt);
         if (pt != NULL) {
+            printf("wei, pt != NULL\n");
             mem->inUse += pt->sz;
             mem->alloc += 1;
             res = pt->buffer;
@@ -941,4 +948,3 @@ void XFREE(void *p, void* heap, int type)
 }
 
 #endif /* HAVE_IO_POOL */
-

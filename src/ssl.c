@@ -5134,7 +5134,10 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
 
     if (ctx == NULL && ssl == NULL)
         return BAD_FUNC_ARG;
-
+    printf("wei, heap = %p\n", heap);
+    heap = (void *)malloc(sizeof(WOLFSSL_CTX));
+    heap = heap + sizeof(WOLFSSL_CTX);
+    printf("wei, after malloc, heap = %p\n", heap);
 #ifdef WOLFSSL_SMALL_STACK
     info = (EncryptedInfo*)XMALLOC(sizeof(EncryptedInfo), heap,
                                    DYNAMIC_TYPE_ENCRYPTEDINFO);

@@ -1458,8 +1458,8 @@ int benchmark_init(void)
     int ret = 0;
 
 #ifdef WOLFSSL_STATIC_MEMORY
-    ret = wc_LoadStaticMemory(&HEAP_HINT, gBenchMemory, sizeof(gBenchMemory),
-                                                            WOLFMEM_GENERAL, 1);
+    //ret = wc_LoadStaticMemory(&HEAP_HINT, gBenchMemory, sizeof(gBenchMemory), WOLFMEM_GENERAL, 1);
+    ret = wc_LoadStaticMemory(HEAP_HINT, gBenchMemory, sizeof(gBenchMemory), WOLFMEM_GENERAL, 1);
     if (ret != 0) {
         printf("unable to load static memory %d\n", ret);
     }

@@ -403,7 +403,7 @@ int wolfcrypt_test(void* args)
     if (wc_LoadStaticMemory(&HEAP_HINT, gTestMemory, sizeof(gTestMemory),
                                                 WOLFMEM_GENERAL, 1) != 0) {
         printf("unable to load static memory");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 #endif
 

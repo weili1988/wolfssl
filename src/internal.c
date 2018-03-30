@@ -1331,6 +1331,7 @@ int wolfSSL_dtls_import_internal(WOLFSSL* ssl, byte* buf, word32 sz)
 
 void InitSSL_Method(WOLFSSL_METHOD* method, ProtocolVersion pv)
 {
+    printf("wei, we are inside InitSSL_Method, pv\n");
     method->version    = pv;
     method->side       = WOLFSSL_CLIENT_END;
     method->downgrade  = 0;

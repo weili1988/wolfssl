@@ -22,7 +22,7 @@
 
 #ifndef WOLFCRYPT_TEST_H
 #define WOLFCRYPT_TEST_H
-
+#define WOLFSSL_STATIC_MEMORY
 
 #ifdef __cplusplus
     extern "C" {
@@ -40,4 +40,3 @@ int wolfcrypt_test(void* args);
 
 
 #endif /* WOLFCRYPT_TEST_H */
-

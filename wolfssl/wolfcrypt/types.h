@@ -51,7 +51,7 @@
 	    typedef byte           word24[3];
 	#endif
 
-
+#define WOLFSSL_STATIC_MEMORY
 	/* try to set SIZEOF_LONG or LONG_LONG if user didn't */
 	#if !defined(_MSC_VER) && !defined(__BCPLUSPLUS__) && !defined(__EMSCRIPTEN__)
 	    #if !defined(SIZEOF_LONG_LONG) && !defined(SIZEOF_LONG)

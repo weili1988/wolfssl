@@ -35,7 +35,7 @@
 #ifdef __cplusplus
     extern "C" {
 #endif
-
+#define WOLFSSL_STATIC_MEMORY
 #ifdef WOLFSSL_STATIC_MEMORY
     #ifdef WOLFSSL_DEBUG_MEMORY
         typedef void *(*wolfSSL_Malloc_cb)(size_t size, void* heap, int type, const char* func, unsigned int line);
@@ -191,4 +191,3 @@ WOLFSSL_API int wolfSSL_GetAllocators(wolfSSL_Malloc_cb*,
 #endif
 
 #endif /* WOLFSSL_MEMORY_H */
-
