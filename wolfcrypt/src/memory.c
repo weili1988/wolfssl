@@ -567,6 +567,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
 
         WOLFSSL_HEAP_HINT* hint = (WOLFSSL_HEAP_HINT*)heap;
 
+        /*
         // below are to allocate at specific mem address
         hint->memory = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
         hint->memory->ava[0] = (wc_Memory*)malloc(sizeof(wc_Memory));
@@ -575,12 +576,9 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
         printf("wei, guess this is the allocation address: hint->memory->ava[0]->buffer = %p\n", hint->memory->ava[0]->buffer);
         //hint->inBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
         //hint->outBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
-
+        */
         WOLFSSL_HEAP*      mem  = (WOLFSSL_HEAP*)(hint->memory);
-        printf("wei, hint = %p\n", hint);
-        //mem = (WOLFSSL_HEAP*) hint; // to test
-        printf("wei, hint->memory = %p\n", hint->memory);
-        printf("wei, hint->outBuf = %p\n", hint->outBuf);
+
         if (wc_LockMutex(&(mem->memory_mutex)) != 0) {
             WOLFSSL_MSG("Bad memory_mutex lock");
             return NULL;
@@ -611,10 +609,11 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
             printf("wei, going to generate pt = %p\n", pt);
             /* general static memory */
             if (pt == NULL) {
-                printf("wei, inside generating pt\n");
-                printf("wei, mem->sizeList[0] = %u\n", mem->sizeList[0]);
+                printf("wei, inside generating pt ");
+
                 for (i = 0; i < WOLFMEM_MAX_BUCKETS; i++) {
                     if ((word32)size < mem->sizeList[i]) {
+                        printf(", mem->sizeList[%d] = %u\n", i, mem->sizeList[i]);
                         if (mem->ava[i] != NULL) {
                             pt = mem->ava[i];
                             mem->ava[i] = pt->next;
@@ -626,7 +625,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
         }
         printf("wei, pt = %p\n", pt);
         if (pt != NULL) {
-            printf("wei, pt != NULL\n");
+            printf("wei, pt != NULL, pt->buffer = %p\n", pt->buffer);
             mem->inUse += pt->sz;
             mem->alloc += 1;
             res = pt->buffer;

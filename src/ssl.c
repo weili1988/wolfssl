@@ -103,6 +103,12 @@
 
 #include <stddef.h>
 
+struct wc_Memory {
+    byte*  buffer;
+    struct wc_Memory* next;
+    word32 sz;
+};
+
 #ifndef WOLFSSL_LEANPSK
 char* mystrnstr(const char* s1, const char* s2, unsigned int n)
 {
@@ -5139,11 +5145,38 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
     printf("wei, heap = %p\n", heap);
     printf("wei offsets: WOLFSSL_ctx to heap=%x;\n",
            (long) offsetof(struct WOLFSSL_CTX, heap));
-    heap = (WOLFSSL_HEAP_HINT *)malloc(sizeof(WOLFSSL_HEAP_HINT));
-    //heap = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
-    //heap->memory = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
-    //heap->inBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
-    //heap->outBuf = (wc_Memory*)malloc(sizeof(wc_Memory));
+
+    // below are to allocate at specific mem address
+    WOLFSSL_HEAP_HINT* heap_tmp = (WOLFSSL_HEAP_HINT *)malloc(sizeof(WOLFSSL_HEAP_HINT));
+    heap_tmp->memory = (WOLFSSL_HEAP *)malloc(sizeof(WOLFSSL_HEAP));
+    heap_tmp->memory->ava[0] = (wc_Memory*)malloc(sizeof(wc_Memory));
+    //heap_tmp->memory->sizeList[0] = 2000 * sizeof(WOLFSSL_HEAP);
+    heap_tmp->memory->sizeList[0] = 2436;
+    heap_tmp->memory->ava[0]->buffer = (byte *)malloc(1024*sizeof(byte));
+    heap_tmp->memory->ava[0]->sz = sizeof(DerBuffer) + (int)sz;
+
+    heap_tmp->memory->ava[1] = (wc_Memory*)malloc(sizeof(wc_Memory));
+    heap_tmp->memory->sizeList[1] = 48;
+    heap_tmp->memory->ava[1]->buffer = (byte *)malloc(1024*sizeof(byte));
+    heap_tmp->memory->ava[1]->sz = 1024;
+
+    heap_tmp->memory->ava[2] = (wc_Memory*)malloc(sizeof(wc_Memory));
+    heap_tmp->memory->sizeList[2] = 2000 * sizeof(WOLFSSL_HEAP);
+    heap_tmp->memory->ava[2]->buffer = (byte *)malloc(1024*sizeof(byte));
+    heap_tmp->memory->ava[2]->sz = 1024;
+    /*
+    heap_tmp->memory->ava[0]->next = heap_tmp->memory->ava[1];
+    heap_tmp->memory->ava[1]->next = heap_tmp->memory->ava[2];
+    */
+    heap = (WOLFSSL_HEAP_HINT *) heap_tmp;
+    printf("wei, guess this is the allocation address: heap->memory->ava[0]->buffer = %p\n", heap_tmp->memory->ava[0]->buffer);
+    printf("wei, heap->memory->ava[0] = %p\n", heap_tmp->memory->ava[0]);
+    printf("wei, guess this is the allocation address: heap->memory->ava[1]->buffer = %p\n", heap_tmp->memory->ava[1]->buffer);
+    printf("wei, heap->memory->ava[1] = %p\n", heap_tmp->memory->ava[1]);
+    printf("wei, guess this is the allocation address: heap->memory->ava[2]->buffer = %p\n", heap_tmp->memory->ava[2]->buffer);
+    printf("wei, heap->memory->ava[2] = %p\n", heap_tmp->memory->ava[2]);
+    //finished test for allocation at specific mem address
+
     printf("wei, after malloc, heap = %p\n", heap);
 #ifdef WOLFSSL_SMALL_STACK
     info = (EncryptedInfo*)XMALLOC(sizeof(EncryptedInfo), heap,
