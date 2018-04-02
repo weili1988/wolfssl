@@ -5322,7 +5322,9 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
             ssl->buffers.weOwnCert = 1;
         }
         else if (ctx) {
+
             FreeDer(&ctx->certificate); /* Make sure previous is free'd */
+            printf("wei, FreeDer(&ctx->certificate)\n");
         #ifdef KEEP_OUR_CERT
             if (ctx->ourCert) {
                 if (ctx->ownOurCert) {
@@ -5333,6 +5335,7 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
             }
         #endif
             ctx->certificate = der;
+            printf("wei, ctx->certificate = der = %p\n", ctx->certificate);
         }
     }
     else if (type == PRIVATEKEY_TYPE) {
@@ -5535,17 +5538,20 @@ int ProcessBuffer(WOLFSSL_CTX* ctx, const unsigned char* buff,
     #endif
 
         WOLFSSL_MSG("Checking cert signature type");
+        printf("wei, heap before InitDecodedCert: heap = %p\n", heap);
         InitDecodedCert(cert, der->buffer, der->length, heap);
-
+        printf("wei, cert->heap after InitDecodedCert: cert->heap = %p\n", cert->heap);
+        WOLFSSL_MSG("finished InitDecodedCert");
         if (DecodeToKey(cert, 0) < 0) {
             WOLFSSL_MSG("Decode to key failed");
             FreeDecodedCert(cert);
+
         #ifdef WOLFSSL_SMALL_STACK
             XFREE(cert, heap, DYNAMIC_TYPE_DCERT);
         #endif
             return WOLFSSL_BAD_FILE;
         }
-
+        WOLFSSL_MSG("finished DecodeToKey");
         if (ssl && ssl->options.side == WOLFSSL_SERVER_END) {
             resetSuites = 1;
         }

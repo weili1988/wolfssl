@@ -4394,7 +4394,7 @@ static int GetName(DecodedCert* cert, int nameType)
                 #ifndef IGNORE_NAME_CONSTRAINTS
                     {
                         DNS_entry* emailName = NULL;
-
+                        WOLFSSL_MSG("wei, emailName = (DNS_entry*)XMALLOC(sizeof(DNS_entry), cert->heap, DYNAMIC_TYPE_ALTNAME);");
                         emailName = (DNS_entry*)XMALLOC(sizeof(DNS_entry),
                                               cert->heap, DYNAMIC_TYPE_ALTNAME);
                         if (emailName == NULL) {
@@ -4402,6 +4402,7 @@ static int GetName(DecodedCert* cert, int nameType)
                             return MEMORY_E;
                         }
                         emailName->type = 0;
+                        WOLFSSL_MSG("emailName->name = (char*)XMALLOC(adv + 1,cert->heap, DYNAMIC_TYPE_ALTNAME");
                         emailName->name = (char*)XMALLOC(adv + 1,
                                               cert->heap, DYNAMIC_TYPE_ALTNAME);
                         if (emailName->name == NULL) {
