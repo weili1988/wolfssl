@@ -530,6 +530,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
     }
 #endif
     printf("wei, heap = %p\n", heap);
+
     /* if no heap hint then use dynamic memory*/
     if (heap == NULL) {
             printf("wei, heap == Null, heap = %p\n", heap);
@@ -579,6 +580,7 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
         */
         WOLFSSL_HEAP*      mem  = (WOLFSSL_HEAP*)(hint->memory);
 
+        printf("wei, mem->ava[1]->buffer = %p\n", mem->ava[1]->buffer);
         if (wc_LockMutex(&(mem->memory_mutex)) != 0) {
             WOLFSSL_MSG("Bad memory_mutex lock");
             return NULL;
@@ -616,7 +618,10 @@ void* wolfSSL_Malloc(size_t size, void* heap, int type)
                         printf(", mem->sizeList[%d] = %u\n", i, mem->sizeList[i]);
                         if (mem->ava[i] != NULL) {
                             pt = mem->ava[i];
+                            printf("before, mem->ava[%d] = %p\n", i, mem->ava[i]);
+                            printf("before, mem->ava[%d]->buffer = %p\n", i, mem->ava[i]->buffer);
                             mem->ava[i] = pt->next;
+                            printf("mem->ava[%d] = %p\n", i, mem->ava[i]);
                             break;
                         }
                     }
